@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using OggVorbis;
+using System.IO;
 
 namespace EventLab.Dependencies.Vorbis.Samples
 {
@@ -18,6 +19,10 @@ namespace EventLab.Dependencies.Vorbis.Samples
         public Button _buttonLoad = null;
 
         public AudioClip _clipSource = null;
+
+        public string _filePath = "TestVorbisPlugin.ogg";
+
+        public AudioSource _audioSourceLoad = null;
 
         #endregion
 
@@ -37,12 +42,17 @@ namespace EventLab.Dependencies.Vorbis.Samples
 
         protected virtual void TestSave()
         {
-            VorbisPlugin.Save("TestVorbisPlugin.ogg", _clipSource, 0.4f);
+            VorbisPlugin.Save(_filePath, _clipSource, 0.4f);
         }
 
         protected virtual void TestLoad()
         {
-
+            if (File.Exists(_filePath))
+            {
+                AudioClip aClip = VorbisPlugin.Load(_filePath);
+                _audioSourceLoad.clip = aClip;
+                _audioSourceLoad.Play();
+            }
         }
 
         #endregion
