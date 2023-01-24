@@ -1,0 +1,13 @@
+{
+  "name": "eventlab.dependencies.vorbis",
+  "version": "1.0.0",
+  "displayName": "EventLab.Dependencies.Vorbis",
+  "description": "A vorbis wrapper for unity",
+  "unity": "2019.1",
+  "author": {
+    "name": "EventLab",
+    "email": "eventlab.projects@gmail.com",
+    "url": "http://www.event-lab.org/"
+  }
+  
+}
