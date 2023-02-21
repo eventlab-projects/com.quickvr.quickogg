@@ -165,6 +165,7 @@ namespace OggVorbis
             }
             return audioClip;
         }
+        
         public static UnityEngine.AudioClip ToAudioClip(byte[] bytes, string audioClipName, int maxSamplesToRead = 1024)
         {
             if (bytes == null)
@@ -209,5 +210,46 @@ namespace OggVorbis
             }
             return audioClip;
         }
+
+        public static void ToRawData(byte[] bytes, out float[] samples, out int samplingRate, out int numChannels, int maxSamplesToRead = 1024)
+        {
+            if (bytes == null)
+            {
+                throw new System.ArgumentNullException(nameof(bytes));
+            }
+            if (bytes.Length < 10)
+            {
+                throw new System.ArgumentException(nameof(bytes));
+            }
+            if (maxSamplesToRead <= 0)
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(maxSamplesToRead));
+            }
+            int returnCode;
+            System.IntPtr pcmPtr = System.IntPtr.Zero;
+            UnityEngine.AudioClip audioClip = null;
+            try
+            {
+                returnCode = NativeBridge.ReadAllPcmDataFromMemory(
+                    bytes,
+                    bytes.Length,
+                    out pcmPtr,
+                    out int pcmLength,
+                    out short channels,
+                    out int frequency,
+                    maxSamplesToRead);
+                NativeErrorException.ThrowExceptionIfNecessary(returnCode);
+                samples = new float[pcmLength];
+                samplingRate = frequency;
+                numChannels = channels;
+                Marshal.Copy(pcmPtr, samples, 0, pcmLength);
+            }
+            finally
+            {
+                returnCode = NativeBridge.FreeSamplesArrayNativeMemory(ref pcmPtr);
+                NativeErrorException.ThrowExceptionIfNecessary(returnCode);
+            }
+        }
+
     }
 }

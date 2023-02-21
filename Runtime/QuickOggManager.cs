@@ -123,20 +123,20 @@ namespace QuickVR.QuickOgg
         /// Creates an AudioClip from a byte array in ogg format. 
         /// </summary>
         /// <param name="name">The name of the AudioClip that is going to be created. </param>
-        /// <param name="data">A byte array representing an Audio file in ogg format. </param>
+        /// <param name="ogg">A byte array representing an Audio file in ogg format. </param>
         /// <returns></returns>
-        public static AudioClip ToAudioClip(string name, byte[] data)
+        public static AudioClip ToAudioClip(string name, byte[] ogg)
         {
-            return VorbisPlugin.ToAudioClip(data, name);
+            return VorbisPlugin.ToAudioClip(ogg, name);
         }
 
         /// <summary>
         /// Creates an AudioClip from a byte array in ogg format asyncrhounously. 
         /// </summary>
         /// <param name="name">The name of the AudioClip that is going to be created. </param>
-        /// <param name="data">A byte array representing an Audio file in ogg format. </param>
+        /// <param name="ogg">A byte array representing an Audio file in ogg format. </param>
         /// <returns></returns>
-        public static CustomAsyncOperation<AudioClip> ToAudioClipAsync(string name, byte[] data)
+        public static CustomAsyncOperation<AudioClip> ToAudioClipAsync(string name, byte[] ogg)
         {
             CustomAsyncOperation<AudioClip> op = new CustomAsyncOperation<AudioClip>();
 
@@ -144,7 +144,30 @@ namespace QuickVR.QuickOgg
             (
                 () =>
                 {
-                    op._result = ToAudioClip(name, data);
+                    op._result = ToAudioClip(name, ogg);
+                }
+            );
+            thread.Start();
+
+            return op;
+        }
+
+        public static RawAudioData ToRawAudioData(byte[] ogg)
+        {
+            VorbisPlugin.ToRawData(ogg, out float[] samples, out int samplingRate, out int numChannels);
+
+            return new RawAudioData(samples, samplingRate, numChannels);
+        }
+
+        public static CustomAsyncOperation<RawAudioData> ToRawAudioDataAsync(byte[] ogg)
+        {
+            CustomAsyncOperation<RawAudioData> op = new CustomAsyncOperation<RawAudioData>();
+
+            Thread thread = new Thread
+            (
+                () =>
+                {
+                    op._result = ToRawAudioData(ogg);
                 }
             );
             thread.Start();
