@@ -37,6 +37,7 @@ namespace OggVorbis
             int returnCode = NativeBridge.WriteAllPcmDataToFile(filePath, pcm, pcm.Length, finalChannelsCount, audioClip.frequency, quality, samplesToRead);
             NativeErrorException.ThrowExceptionIfNecessary(returnCode);
         }
+
         public static byte[] GetOggVorbis(
             UnityEngine.AudioClip audioClip,
             float quality = 0.4f,
@@ -69,6 +70,48 @@ namespace OggVorbis
                     pcm.Length,
                     finalChannelsCount,
                     audioClip.frequency,
+                    quality,
+                    samplesToRead);
+                NativeErrorException.ThrowExceptionIfNecessary(returnCode);
+                bytes = new byte[bytesLength];
+                Marshal.Copy(bytesPtr, bytes, 0, bytesLength);
+            }
+            finally
+            {
+                returnCode = NativeBridge.FreeMemoryArrayForWriteAllPcmData(bytesPtr);
+                NativeErrorException.ThrowExceptionIfNecessary(returnCode);
+            }
+            return bytes;
+        }
+
+        public static byte[] GetOggVorbis(
+            float[] samples,
+            int frequency, 
+            int numChannels, 
+            float quality = 0.4f,
+            int samplesToRead = 1024)
+        {
+            if (samplesToRead <= 0)
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(samplesToRead));
+            }
+            
+            if (numChannels != 1 && numChannels != 2)
+            {
+                throw new System.ArgumentException($"Only one or two channels are supported, provided channels count: {numChannels}");
+            }
+            int returnCode;
+            System.IntPtr bytesPtr = System.IntPtr.Zero;
+            byte[] bytes;
+            try
+            {
+                returnCode = NativeBridge.WriteAllPcmDataToMemory(
+                    out bytesPtr,
+                    out int bytesLength,
+                    samples,
+                    samples.Length,
+                    (short)numChannels,
+                    frequency,
                     quality,
                     samplesToRead);
                 NativeErrorException.ThrowExceptionIfNecessary(returnCode);

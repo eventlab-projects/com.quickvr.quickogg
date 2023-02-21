@@ -11,6 +11,21 @@ using OggVorbis;
 namespace QuickVR.QuickOgg
 {
 
+    public struct RawAudioData
+    {
+        public float[] _samples;
+        public int _samplingRate;
+        public int _numChannels;
+
+        public RawAudioData(float[] samples, int samplingRate, int numChannels)
+        {
+            _samples = samples;
+            _samplingRate = samplingRate;
+            _numChannels = numChannels;
+        }
+
+    }
+
     public static class QuickOggManager
     {
 
@@ -38,12 +53,24 @@ namespace QuickVR.QuickOgg
             return op;
         }
 
-        public static byte[] ToByteArray(AudioClip aClip, float quality = 0.4f)
+        /// <summary>
+        /// Converts an audio raw data into an ogg data represented as a byte array. 
+        /// </summary>
+        /// <param name="audioData">The raw audio data</param>
+        /// <param name="quality">The quality of the ogg compression</param>
+        /// <returns></returns>
+        public static byte[] ToOgg(RawAudioData audioData, float quality = 0.4f)
         {
-            return VorbisPlugin.GetOggVorbis(aClip, quality);
+            return VorbisPlugin.GetOggVorbis(audioData._samples, audioData._samplingRate, audioData._numChannels, quality);
         }
 
-        public static CustomAsyncOperation<byte[]> ToByteArrayAsync(AudioClip aClip, float quality = 0.4f)
+        /// <summary>
+        /// Converts an audio raw data into an ogg data represented as a byte array asyncrhonously. 
+        /// </summary>
+        /// <param name="audioData">The raw audio data</param>
+        /// <param name="quality">The quality of the ogg compression</param>
+        /// <returns></returns>
+        public static CustomAsyncOperation<byte[]> ToOggAsync(RawAudioData audioData, float quality = 0.4f)
         {
             CustomAsyncOperation<byte[]> op = new CustomAsyncOperation<byte[]>();
 
@@ -51,7 +78,7 @@ namespace QuickVR.QuickOgg
             (
                 () =>
                 {
-                    op._result = ToByteArray(aClip, quality);
+                    op._result = ToOgg(audioData, quality);
                 }
             );
             thread.Start();
@@ -59,11 +86,56 @@ namespace QuickVR.QuickOgg
             return op;
         }
 
+        /// <summary>
+        /// Converts an AudioClip into a byte array, representing an ogg audio file. 
+        /// </summary>
+        /// <param name="aClip">The AudioClip to convert. </param>
+        /// <param name="quality">The quality of the compression. </param>
+        /// <returns></returns>
+        public static byte[] ToOgg(AudioClip aClip, float quality = 0.4f)
+        {
+            return VorbisPlugin.GetOggVorbis(aClip, quality);
+        }
+
+        /// <summary>
+        /// Converts an AudioClip into a byte array, representing an ogg audio file asyncrhonously. 
+        /// </summary>
+        /// <param name="aClip">The AudioClip to convert. </param>
+        /// <param name="quality">The quality of the compression. </param>
+        /// <returns></returns>
+        public static CustomAsyncOperation<byte[]> ToOggAsync(AudioClip aClip, float quality = 0.4f)
+        {
+            CustomAsyncOperation<byte[]> op = new CustomAsyncOperation<byte[]>();
+
+            Thread thread = new Thread
+            (
+                () =>
+                {
+                    op._result = ToOgg(aClip, quality);
+                }
+            );
+            thread.Start();
+
+            return op;
+        }
+
+        /// <summary>
+        /// Creates an AudioClip from a byte array in ogg format. 
+        /// </summary>
+        /// <param name="name">The name of the AudioClip that is going to be created. </param>
+        /// <param name="data">A byte array representing an Audio file in ogg format. </param>
+        /// <returns></returns>
         public static AudioClip ToAudioClip(string name, byte[] data)
         {
             return VorbisPlugin.ToAudioClip(data, name);
         }
 
+        /// <summary>
+        /// Creates an AudioClip from a byte array in ogg format asyncrhounously. 
+        /// </summary>
+        /// <param name="name">The name of the AudioClip that is going to be created. </param>
+        /// <param name="data">A byte array representing an Audio file in ogg format. </param>
+        /// <returns></returns>
         public static CustomAsyncOperation<AudioClip> ToAudioClipAsync(string name, byte[] data)
         {
             CustomAsyncOperation<AudioClip> op = new CustomAsyncOperation<AudioClip>();
