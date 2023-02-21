@@ -1,8 +1,8 @@
 {
-  "name": "eventlab.dependencies.vorbis",
+  "name": "quickvr.quickogg",
   "version": "1.0.0",
-  "displayName": "EventLab.Dependencies.Vorbis",
-  "description": "A vorbis wrapper for unity",
+  "displayName": "QuickVR.QuickOgg",
+  "description": "An ogg audio file wrapper for unity",
   "unity": "2019.1",
   "author": {
     "name": "EventLab",
